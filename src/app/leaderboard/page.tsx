@@ -10,8 +10,19 @@ export default async function LeaderboardPage() {
   const topUsers = await prisma.userStats.findMany({
     orderBy: { totalScore: 'desc' },
     take: 50,
-    include: { user: { include: { teamLineups: { take: 1, orderBy: { totalScore: 'desc' }, include: { slots: true } } } },
-  });
+   include: {
+  user: {
+    include: {
+      teamLineups: {
+        take: 1,
+        orderBy: { totalScore: 'desc' },
+        include: {
+          slots: true,
+        },
+      },
+    },
+  },
+},
 
   const currentUserStats = session?.user?.email
     ? await prisma.user.findUnique({

@@ -15,10 +15,19 @@ export default async function TeamPage() {
         include: { cardTemplate: { include: { player: true } } },
       },
       teamLineups: {
-        include: { slots: { include: { ownedCard: { include: { cardTemplate: { include: { player: true } } } } } },
+        include: {
+  user: {
+    include: {
+      teamLineups: {
+        take: 1,
+        orderBy: { totalScore: 'desc' },
+        include: {
+          slots: true,
+        },
       },
     },
-  });
+  },
+},
 
   if (!user) redirect('/login');
 

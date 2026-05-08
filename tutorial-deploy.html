@@ -1,0 +1,783 @@
+
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Esport Cards — Tutoriel de mise en ligne complète</title>
+  <style>
+    :root {
+      --bg:      oklch(98% 0.005 250);
+      --surface:  oklch(100% 0 0);
+      --fg:       oklch(22% 0.02 240);
+      --muted:    oklch(50% 0.018 240);
+      --border:   oklch(90% 0.008 240);
+      --accent:   oklch(42% 0.18 155);
+      --accent-glow: oklch(52% 0.22 155);
+      --glass-bg: oklch(100% 0 0 / 0.72);
+      --glass-border: oklch(90% 0.008 240 / 0.5);
+
+      --font-display: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, sans-serif;
+      --font-body:    -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, sans-serif;
+      --font-mono:    'JetBrains Mono', 'IBM Plex Mono', ui-monospace, 'Cascadia Code', Menlo, monospace;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:      oklch(18% 0.012 250);
+        --surface:  oklch(22% 0.015 250);
+        --fg:       oklch(92% 0.005 250);
+        --muted:    oklch(62% 0.012 250);
+        --border:   oklch(30% 0.015 250);
+        --glass-bg: oklch(22% 0.015 250 / 0.75);
+        --glass-border: oklch(40% 0.02 250 / 0.5);
+      }
+    }
+
+    * { box-sizing: border-box; margin:0; padding:0; }
+
+    body {
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--fg);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrap {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 48px 28px 120px;
+    }
+
+    /* ── Top nav ── */
+    nav.top {
+      font-size: 13px;
+      font-family: var(--font-mono);
+      color: var(--muted);
+      margin-bottom: 48px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    nav.top a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: box-shadow 0.2s;
+    }
+    nav.top a:hover {
+      box-shadow: 0 2px 0 var(--accent);
+    }
+    nav.top .logo {
+      font-weight: 700;
+      color: var(--fg);
+      letter-spacing: -0.02em;
+    }
+
+    /* ── Eyebrow ── */
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 24px;
+      height: 2px;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    /* ── Headline ── */
+    h1 {
+      font-family: var(--font-display);
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.025em;
+      margin: 0 0 20px;
+      color: var(--fg);
+    }
+    h1 em {
+      color: var(--accent);
+      font-style: normal;
+      text-shadow: 0 0 24px oklch(52% 0.22 155 / 0.4);
+    }
+
+    /* ── Byline ── */
+    .byline {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--muted);
+      margin: 0 0 40px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0.18;
+      box-shadow: 0 0 12px oklch(52% 0.22 155 / 0.3);
+    }
+
+    /* ── Lede ── */
+    .lede {
+      font-size: 20px;
+      line-height: 1.6;
+      color: var(--fg);
+      margin: 0 0 48px;
+      padding: 20px 24px;
+      border-inline-start: 3px solid var(--accent);
+      box-shadow: -4px 0 20px oklch(52% 0.22 155 / 0.08);
+      background: var(--surface);
+      border-radius: 0 8px 8px 0;
+    }
+
+    /* ── Hero figure ── */
+    .hero-figure {
+      aspect-ratio: 16/9;
+      background:
+        linear-gradient(135deg, oklch(42% 0.18 155 / 0.15), oklch(22% 0.02 240 / 0.3)),
+        var(--surface);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      margin-bottom: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-figure::after {
+      content: '🚀';
+      font-size: 48px;
+      opacity: 0.6;
+    }
+    .hero-figure::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 12px;
+      box-shadow: inset 0 0 60px oklch(52% 0.22 155 / 0.1);
+      pointer-events: none;
+    }
+
+    /* ── Body paragraphs ── */
+    p {
+      margin: 20px 0;
+      color: var(--fg);
+    }
+    p:first-of-type::first-letter {
+      float: left;
+      font-size: 56px;
+      line-height: 0.85;
+      padding: 6px 10px 0 0;
+      font-weight: 700;
+      color: var(--accent);
+      text-shadow: 0 0 16px oklch(52% 0.22 155 / 0.5);
+      font-family: var(--font-display);
+    }
+
+    /* ── Headings ── */
+    h2 {
+      font-family: var(--font-display);
+      font-size: clamp(24px, 3.5vw, 32px);
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      margin: 56px 0 16px;
+      line-height: 1.2;
+      color: var(--fg);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    h2::before {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 28px;
+      background: var(--accent);
+      border-radius: 3px;
+      box-shadow: 0 0 10px var(--accent-glow);
+      flex-shrink: 0;
+    }
+
+    h3 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 600;
+      margin: 32px 0 12px;
+      color: var(--fg);
+    }
+
+    /* ── Blockquote ── */
+    blockquote {
+      margin: 40px 0;
+      padding: 20px 28px;
+      font-size: 18px;
+      line-height: 1.5;
+      color: var(--fg);
+      border-inline-start: 3px solid var(--accent);
+      background: var(--surface);
+      border-radius: 0 8px 8px 0;
+      box-shadow: -4px 0 20px oklch(52% 0.22 155 / 0.06);
+      font-style: italic;
+    }
+
+    /* ── Code ── */
+    code {
+      font-family: var(--font-mono);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 0.88em;
+      color: var(--accent);
+    }
+
+    pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 24px;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      line-height: 1.65;
+      margin: 28px 0;
+      color: var(--fg);
+      box-shadow: 0 2px 20px oklch(22% 0.02 240 / 0.06);
+    }
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: var(--fg);
+      font-size: inherit;
+    }
+
+    /* ── Glass card ── */
+    .glass-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin: 28px 0;
+      box-shadow: 0 4px 24px oklch(22% 0.02 240 / 0.06);
+      transition: box-shadow 0.3s, border-color 0.3s;
+    }
+    .glass-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 4px 32px oklch(52% 0.22 155 / 0.12);
+    }
+
+    /* ── Table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 28px 0;
+      font-size: 14px;
+      font-family: var(--font-mono);
+    }
+    th {
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 2px solid var(--accent);
+      color: var(--accent);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 11px;
+    }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--fg);
+    }
+    tr:hover td {
+      background: oklch(52% 0.22 155 / 0.04);
+    }
+
+    /* ── Step badge ── */
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: var(--surface);
+      font-size: 14px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      box-shadow: 0 0 16px oklch(52% 0.22 155 / 0.4);
+      flex-shrink: 0;
+    }
+
+    /* ── Checklist ── */
+    .checklist {
+      list-style: none;
+      margin: 20px 0;
+    }
+    .checklist li {
+      padding: 8px 0 8px 32px;
+      position: relative;
+      font-size: 14.5px;
+    }
+    .checklist li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: 700;
+      font-family: var(--font-mono);
+      text-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    /* ── CTA box ── */
+    .cta-box {
+      background: linear-gradient(135deg, oklch(42% 0.18 155 / 0.08), oklch(42% 0.18 155 / 0.03));
+      border: 1px solid oklch(42% 0.18 155 / 0.3);
+      border-radius: 12px;
+      padding: 28px 32px;
+      margin: 48px 0;
+      text-align: center;
+    }
+    .cta-box p {
+      font-size: 18px;
+      font-weight: 500;
+      margin: 0 0 12px;
+    }
+    .cta-button {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--surface);
+      background: var(--accent);
+      padding: 12px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      box-shadow: 0 4px 20px oklch(52% 0.22 155 / 0.4);
+      transition: box-shadow 0.3s, transform 0.2s;
+    }
+    .cta-button:hover {
+      box-shadow: 0 6px 32px oklch(52% 0.22 155 / 0.6);
+      transform: translateY(-1px);
+    }
+
+    /* ── Endnote ── */
+    .endnote {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      color: var(--muted);
+      margin-top: 72px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .endnote a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .endnote a:hover {
+      box-shadow: 0 1px 0 var(--accent);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .wrap { padding: 32px 18px 80px; }
+      h1 { font-size: 28px; }
+      h2 { font-size: 22px; }
+      pre { padding: 14px 16px; font-size: 12px; }
+      .glass-card { padding: 18px 20px; }
+      table { font-size: 12px; }
+      th, td { padding: 8px 10px; }
+    }
+
+    /* ── Glow animation ── */
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 12px oklch(52% 0.22 155 / 0.3); }
+      50%       { box-shadow: 0 0 24px oklch(52% 0.22 155 / 0.6); }
+    }
+    .glow-pulse { animation: pulse-glow 3s ease-in-out infinite; }
+  </style>
+</head>
+<body>
+  <article class="wrap" data-od-id="article">
+
+    <!-- Navigation -->
+    <nav class="top">
+      <span class="logo">⬡ Esport Cards</span>
+      <span style="color:var(--border)">/</span>
+      <a href="#">Documentation</a>
+    </nav>
+
+    <!-- Eyebrow -->
+    <div class="eyebrow" data-od-id="eyebrow">Guide de déploiement</div>
+
+    <!-- Headline -->
+    <h1 data-od-id="headline">Mettre <em>Esport Cards</em> en ligne<br/>— tutoriel complet</h1>
+
+    <!-- Byline -->
+    <div class="byline">
+      <div class="avatar glow-pulse"></div>
+      <span>Par l'équipe Esport Cards · Mai 2026 · 10 min de lecture</span>
+    </div>
+
+    <!-- Lede -->
+    <p class="lede" data-od-id="lede">
+      De l'application Next.js sur votre machine au site en ligne accessible au monde entier :
+      voici toutes les étapes pour déployer votre plateforme de cartes à collectionner esport.
+    </p>
+
+    <!-- Hero -->
+    <div class="hero-figure" data-od-id="hero"></div>
+
+    <!-- Intro -->
+    <p>
+      Vous avez construit une plateforme complète avec Next.js 14, Prisma, NextAuth et une base
+      SQLite. C'est parfait pour le développement local, mais maintenant vous voulez que le monde
+      entier puisse ouvrir des <em>packs</em>, collectionner des cartes et consulter le leaderboard.
+    </p>
+
+    <p>
+      Ce tutoriel vous guide étape par étape, du code local vers la production.
+      Aucune connaissance DevOps avancée requise — juste les bonnes commandes au bon moment.
+    </p>
+
+    <!-- Step 1 -->
+    <h2><span class="step-badge">1</span> Préparer le projet pour la production</h2>
+
+    <p>
+      SQLite est parfait pour le développement local, mais il ne fonctionne pas en production sur
+      la plupart des hébergeurs modernes. Nous allons passer sur <strong>PostgreSQL</strong>,
+      la norme industrielle pour les applications Next.js.
+    </p>
+
+    <h3>1.1 Changer la base de données (SQLite → PostgreSQL)</h3>
+
+    <p>
+      Modifiez la première ligne de <code>prisma/schema.prisma</code> :
+    </p>
+
+    <pre><code># Avant :
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+# Après :
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}</code></pre>
+
+    <h3>1.2 Installer le driver PostgreSQL</h3>
+
+    <pre><code>npm install pg
+npm install --save-dev @types/pg</code></pre>
+
+    <h3>1.3 Vérifier les scripts package.json</h3>
+
+    <p>Assurez-vous que vos scripts sont bien configurés :</p>
+
+    <pre><code>{
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "seed": "node prisma/seed.js",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push"
+  }
+}</code></pre>
+
+    <div class="glass-card">
+      <h3 style="margin-top:0">💡 Astuce Glass</h3>
+      <p style="margin-bottom:0">
+        Créez un fichier <code>.env.example</code> à la racine pour documenter les variables
+        d'environnement sans exposer vos secrets :
+      </p>
+      <pre style="margin-bottom:0"><code>DATABASE_URL="postgresql://user:password@localhost:5432/esportcards"
+NEXTAUTH_SECRET="your-secret-key-here"
+NEXTAUTH_URL="https://your-domain.com"</code></pre>
+    </div>
+
+    <!-- Step 2 -->
+    <h2><span class="step-badge">2</span> Choisir l'hébergeur</h2>
+
+    <p>
+      Pour une application Next.js full-stack (avec API routes, SSR, et base de données),
+      voici les meilleures options en 2026 :
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Hébergeur</th>
+          <th>Difficulté</th>
+          <th>Prix /mois</th>
+          <th>Base de données</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Vercel</strong> ⭐ Recommandé</td>
+          <td>Très facile</td>
+          <td>Gratuit → 20€</td>
+          <td>À part (Neon / Supabase)</td>
+        </tr>
+        <tr>
+          <td><strong>Railway</strong></td>
+          <td>Facile</td>
+          <td>5€ + usage</td>
+          <td>Inclus</td>
+        </tr>
+        <tr>
+          <td><strong>Render</strong></td>
+          <td>Facile</td>
+          <td>Gratuit → 7€</td>
+          <td>Inclus</td>
+        </tr>
+        <tr>
+          <td><strong>VPS (OVH / Scaleway)</strong></td>
+          <td>Complexe</td>
+          <td>3–5€</td>
+          <td>À configurer</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <blockquote>
+      Nous recommandons <strong>Vercel + Neon</strong> (PostgreSQL gratuit) — c'est l'option
+      la plus simple et robuste pour Next.js en 2026.
+    </blockquote>
+
+    <!-- Step 3 -->
+    <h2><span class="step-badge">3</span> Mettre en ligne sur Vercel</h2>
+
+    <p>
+      Vercel est la plateforme de référence pour Next.js. Le déploiement se fait en quelques clics.
+    </p>
+
+    <h3>3.1 Pousser le code sur GitHub</h3>
+
+    <pre><code># Initialiser git (si ce n'est pas fait)
+git init
+git add .
+git commit -m "Initial commit - Esport Cards MVP"
+
+# Créer un repo sur GitHub puis :
+git remote add origin https://github.com/ton-username/esport-cards.git
+git push -u origin main</code></pre>
+
+    <h3>3.2 Créer une base de données PostgreSQL gratuite</h3>
+
+    <p>Suivez ces étapes :</p>
+    <ol class="checklist">
+      <li>Allez sur <a href="https://neon.tech" style="color:var(--accent)">Neon</a> (ou <a href="https://supabase.com" style="color:var(--accent)">Supabase</a>)</li>
+      <li>Créez un compte gratuit</li>
+      <li>Créez un nouveau projet : <code>esport-cards</code></li>
+      <li>Copiez la <strong>DATABASE_URL</strong> (elle ressemble à <code>postgresql://user:password@ep-xxx.neon.tech/neondb</code>)</li>
+    </ol>
+
+    <h3>3.3 Déployer sur Vercel</h3>
+
+    <ol class="checklist">
+      <li>Allez sur <a href="https://vercel.com" style="color:var(--accent)">Vercel</a></li>
+      <li>Cliquez <strong>"Add New Project"</strong></li>
+      <li>Importez votre repo GitHub <code>esport-cards</code></li>
+      <li>Configurez les <strong>Environment Variables</strong> :</li>
+    </ol>
+
+    <div class="glass-card">
+      <table style="margin:0">
+        <thead>
+          <tr><th>Variable</th><th>Valeur</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>DATABASE_URL</code></td><td>postgresql://... (celle de Neon)</td></tr>
+          <tr><td><code>NEXTAUTH_SECRET</code></td><td>(générez une clé : <code>openssl rand -base64 32</code>)</td></tr>
+          <tr><td><code>NEXTAUTH_URL</code></td><td>https://ton-site.vercel.app</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>5. Cliquez sur "Deploy"</strong> — Vercel build votre app et la met en ligne en ~2 minutes.</p>
+
+    <h3>3.4 Lancer le seed en production</h3>
+
+    <p>Une fois déployé, vous devez initialiser la base de données avec les vrais joueurs :</p>
+
+    <pre><code># Générer le client Prisma
+npx prisma generate
+
+# Pousser le schéma
+npx prisma db push
+
+# Lancer le seed (ajoute s1mple, ZywOo, Faker, TenZ...)
+npm run seed</code></pre>
+
+    <div class="glass-card" style="border-color:var(--accent)">
+      <p style="margin:0;font-size:13px;font-family:var(--font-mono);color:var(--muted)">
+        💡 Si vous êtes en local, vous pouvez temporairement mettre la DATABASE_URL de prod dans votre
+        <code>.env</code> local pour lancer le seed directement vers la base de production.
+      </p>
+    </div>
+
+    <!-- Step 4 -->
+    <h2><span class="step-badge">4</span> Alternative : Railway (tout-en-un)</h2>
+
+    <p>
+      Railway gère à la fois l'app Next.js et la base PostgreSQL dans un seul projet.
+      C'est une excellente alternative à Vercel + Neon.
+    </p>
+
+    <h3>4.1 Déployer</h3>
+    <ol class="checklist">
+      <li>Allez sur <a href="https://railway.app" style="color:var(--accent)">Railway</a></li>
+      <li><strong>"New Project"</strong> → <strong>"Deploy from GitHub repo"</strong></li>
+      <li>Sélectionnez <code>esport-cards</code></li>
+      <li>Railway détecte Next.js automatiquement</li>
+    </ol>
+
+    <h3>4.2 Ajouter PostgreSQL</h3>
+    <ol class="checklist">
+      <li>Dans votre projet Railway → <strong>"New Service"</strong> → <strong>"Database"</strong> → <strong>"PostgreSQL"</strong></li>
+      <li>Railway injecte automatiquement <code>DATABASE_URL</code> dans votre app</li>
+    </ol>
+
+    <h3>4.3 Ajouter les variables d'environnement</h3>
+    <p>Dans l'onglet <strong>Variables</strong> de votre app :</p>
+    <pre><code>NEXTAUTH_SECRET = (générez une clé sécurisée)
+NEXTAUTH_URL    = https://ton-app.railway.app</code></pre>
+
+    <h3>4.4 Lancer le seed</h3>
+    <p>Dans l'onglet <strong>Deploy</strong> → <strong>"Run Command"</strong> :</p>
+    <pre><code>npx prisma db push && npm run seed</code></pre>
+
+    <!-- Step 5 -->
+    <h2><span class="step-badge">5</span> Configurer le domaine personnalisé</h2>
+
+    <p>
+      Donnez une identité premium à votre plateforme avec un nom de domaine personnalisé
+      comme <code>esportcards.fr</code>.
+    </p>
+
+    <h3>5.1 Acheter un domaine</h3>
+    <p>Recommandés pour la France :</p>
+    <ul class="checklist">
+      <li><strong>OVH</strong> (~8€/an)</li>
+      <li><strong>Gandi</strong> (~12€/an)</li>
+      <li><strong>Namecheap</strong> (~10€/an)</li>
+    </ul>
+
+    <h3>5.2 Lier le domaine sur Vercel</h3>
+    <ol class="checklist">
+      <li>Vercel → Votre projet → <strong>Settings</strong> → <strong>Domains</strong></li>
+      <li>Ajoutez <code>esportcards.fr</code> et <code>www.esportcards.fr</code></li>
+      <li>Vercel vous donne les <strong>DNS à configurer</strong> chez votre registrar :</li>
+    </ol>
+
+    <pre><code>Type: A     Nom: @     Valeur: 76.76.21.21
+Type: CNAME Nom: www   Valeur: cname.vercel-dns.com</code></pre>
+
+    <p>N'oubliez pas de mettre à jour <code>NEXTAUTH_URL</code> dans les variables d'environnement :</p>
+    <pre><code>NEXTAUTH_URL=https://esportcards.fr</code></pre>
+
+    <!-- Step 6 -->
+    <h2><span class="step-badge">6</span> Checklist avant de commencer</h2>
+
+    <p>Vérifiez ces points avant votre premier déploiement :</p>
+
+    <pre><code># 1. Vérifiez que .env.local est dans .gitignore
+cat .gitignore | grep ".env"  # doit afficher .env*.local
+
+# 2. Vérifiez que le build passe en local
+npm run build
+
+# 3. Vérifiez prisma generate
+npx prisma generate</code></pre>
+
+    <div class="glass-card">
+      <h3 style="margin-top:0">✅ Structure minimale pour la prod</h3>
+      <ul class="checklist" style="margin-bottom:0">
+        <li><code>prisma/schema.prisma</code> (provider = "postgresql")</li>
+        <li><code>DATABASE_URL</code> dans les variables d'environnement</li>
+        <li><code>NEXTAUTH_SECRET</code> défini</li>
+        <li><code>NEXTAUTH_URL</code> = l'URL de prod</li>
+        <li><code>npm run build</code> passe sans erreur</li>
+        <li>Pas de <code>.env.local</code> poussés sur GitHub</li>
+      </ul>
+    </div>
+
+    <!-- Summary -->
+    <h2><span class="step-badge">📋</span> Résumé du plan d'action</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Ordre</th>
+          <th>Action</th>
+          <th>Commande / Lien</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>Passer Prisma sur PostgreSQL</td><td>Modifier <code>schema.prisma</code></td></tr>
+        <tr><td>2</td><td>Installer <code>pg</code></td><td><code>npm install pg</code></td></tr>
+        <tr><td>3</td><td>Pousser sur GitHub</td><td><code>git push origin main</code></td></tr>
+        <tr><td>4</td><td>Créer base Neon</td><td><a href="https://neon.tech" style="color:var(--accent)">neon.tech</a></td></tr>
+        <tr><td>5</td><td>Déployer sur Vercel</td><td><a href="https://vercel.com" style="color:var(--accent)">vercel.com</a></td></tr>
+        <tr><td>6</td><td>Configurer variables env</td><td>Vercel → Settings → Env Vars</td></tr>
+        <tr><td>7</td><td>Lancer <code>prisma db push</code> + seed</td><td>via Vercel CLI ou local</td></tr>
+        <tr><td>8</td><td>(Optionnel) Acheter domaine</td><td>OVH / Gandi</td></tr>
+      </tbody>
+    </table>
+
+    <div class="cta-box">
+      <p><strong>L'option la plus rapide</strong> : GitHub + Vercel + Neon = site en ligne en <strong>15 minutes</strong>.</p>
+      <a href="https://vercel.com" class="cta-button">Commencer sur Vercel →</a>
+    </div>
+
+    <!-- Login credentials reminder -->
+    <div class="glass-card">
+      <h3 style="margin-top:0">🔑 Identifiants de connexion (après déploiement)</h3>
+      <table style="margin:0">
+        <thead>
+          <tr><th>Compte</th><th>Email</th><th>Mot de passe</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Admin</td><td><code>admin@esportcards.com</code></td><td><code>admin123</code></td></tr>
+          <tr><td>Demo</td><td><code>demo@esportcards.com</code></td><td><code>demo123</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Endnote -->
+    <div class="endnote">
+      <span>Esport Cards — Plateforme de cartes à collectionner esport</span>
+      <a href="#">Besoin d'aide ? →</a>
+    </div>
+
+  </article>
+</body>
+</html>

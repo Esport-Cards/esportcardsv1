@@ -3,17 +3,44 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 
+type Listing = {
+  id: string;
+  price: number;
+  buyerId: string | null;
+  seller: {
+    id: string;
+    name: string;
+  };
+  buyer: {
+    id: string;
+    name: string;
+  } | null;
+  ownedCard: {
+    rarity: string;
+    cardTemplate: {
+      player: {
+        name: string;
+      };
+    };
+  };
+};
+
 export default async function AdminListingsPage() {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.email) redirect('/login?callbackUrl=/admin/listings');
+
+  if (!session?.user?.email) {
+    redirect('/login?callbackUrl=/admin/listings');
+  }
 
   const user = await prisma.user.findUnique({
     where: { email: session.user.email },
   });
 
-  if (!user?.isAdmin) redirect('/dashboard');
+  if (!user?.isAdmin) {
+    redirect('/dashboard');
+  }
 
-  const listings = await prisma.marketplaceListing.findMany({
+  const listings: Listing[] = await prisma.marketplaceListing.findMany({
     orderBy: { listedAt: 'desc' },
     include: {
       ownedCard: {
@@ -25,14 +52,19 @@ export default async function AdminListingsPage() {
           },
         },
       },
-      seller: { select: { id: true, name: true } },
-      buyer: { select: { id: true, name: true } },
+      seller: {
+        select: { id: true, name: true },
+      },
+      buyer: {
+        select: { id: true, name: true },
+      },
     },
   });
 
   return (
     <div className="min-h-screen py-8 px-4">
       <div className="max-w-7xl mx-auto">
+
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="font-display text-3xl font-bold text-white mb-2">
@@ -42,6 +74,7 @@ export default async function AdminListingsPage() {
               View and manage marketplace listings
             </p>
           </div>
+
           <a
             href="/admin"
             className="text-sm text-[#00e676] hover:text-[#00c853]"
@@ -66,7 +99,7 @@ export default async function AdminListingsPage() {
               {listings.map((listing) => (
                 <tr
                   key={listing.id}
-                  className="border-b border-[#0d4f3c]/50"
+                  className="border-b border-[#0d4f3c]/50 hover:bg-white/5 transition"
                 >
                   <td className="p-3">
                     <div className="text-white text-sm font-medium">
@@ -111,6 +144,7 @@ export default async function AdminListingsPage() {
             </div>
           )}
         </div>
+
       </div>
     </div>
   );

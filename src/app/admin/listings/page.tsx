@@ -7,13 +7,24 @@ export default async function AdminListingsPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) redirect('/login?callbackUrl=/admin/listings');
 
-  const user = await prisma.user.findUnique({ where: { email: session.user.email } });
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+  });
+
   if (!user?.isAdmin) redirect('/dashboard');
 
   const listings = await prisma.marketplaceListing.findMany({
     orderBy: { listedAt: 'desc' },
     include: {
-      ownedCard: { include: { cardTemplate: { include: { player: true } } },
+      ownedCard: {
+        include: {
+          cardTemplate: {
+            include: {
+              player: true,
+            },
+          },
+        },
+      },
       seller: { select: { id: true, name: true } },
       buyer: { select: { id: true, name: true } },
     },
@@ -27,9 +38,16 @@ export default async function AdminListingsPage() {
             <h1 className="font-display text-3xl font-bold text-white mb-2">
               Manage <span className="text-[#00e676]">Listings</span>
             </h1>
-            <p className="text-gray-400">View and manage marketplace listings</p>
+            <p className="text-gray-400">
+              View and manage marketplace listings
+            </p>
           </div>
-          <a href="/admin" className="text-sm text-[#00e676] hover:text-[#00c853]">← Back to Admin</a>
+          <a
+            href="/admin"
+            className="text-sm text-[#00e676] hover:text-[#00c853]"
+          >
+            ← Back to Admin
+          </a>
         </div>
 
         <div className="panel overflow-hidden">
@@ -43,23 +61,43 @@ export default async function AdminListingsPage() {
                 <th className="text-center text-xs text-gray-400 p-3">Status</th>
               </tr>
             </thead>
+
             <tbody>
               {listings.map((listing) => (
-                <tr key={listing.id} className="border-b border-[#0d4f3c]/50">
+                <tr
+                  key={listing.id}
+                  className="border-b border-[#0d4f3c]/50"
+                >
                   <td className="p-3">
-                    <div className="text-white text-sm font-medium">{listing.ownedCard.cardTemplate.player.name}</div>
-                    <div className="text-xs text-gray-500">{listing.ownedCard.rarity}</div>
+                    <div className="text-white text-sm font-medium">
+                      {listing.ownedCard.cardTemplate.player.name}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {listing.ownedCard.rarity}
+                    </div>
                   </td>
-                  <td className="p-3 text-gray-300 text-sm">{listing.seller.name}</td>
-                  <td className="p-3 text-gray-300 text-sm">{listing.buyer?.name || '—'}</td>
+
+                  <td className="p-3 text-gray-300 text-sm">
+                    {listing.seller.name}
+                  </td>
+
+                  <td className="p-3 text-gray-300 text-sm">
+                    {listing.buyer?.name || '—'}
+                  </td>
+
                   <td className="p-3 text-right text-[#00e676] font-mono text-sm">
                     ${(listing.price / 100).toFixed(2)}
                   </td>
+
                   <td className="p-3 text-center">
                     {listing.buyerId ? (
-                      <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded">Sold</span>
+                      <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded">
+                        Sold
+                      </span>
                     ) : (
-                      <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">Active</span>
+                      <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">
+                        Active
+                      </span>
                     )}
                   </td>
                 </tr>
@@ -68,7 +106,9 @@ export default async function AdminListingsPage() {
           </table>
 
           {listings.length === 0 && (
-            <div className="text-center py-8 text-gray-500">No listings yet.</div>
+            <div className="text-center py-8 text-gray-500">
+              No listings yet.
+            </div>
           )}
         </div>
       </div>

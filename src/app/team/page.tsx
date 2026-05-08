@@ -16,18 +16,23 @@ export default async function TeamPage() {
       },
       teamLineups: {
         include: {
-  user: {
-    include: {
-      teamLineups: {
-        take: 1,
-        orderBy: { totalScore: 'desc' },
-        include: {
-          slots: true,
+          slots: {
+            include: {
+              ownedCard: {
+                include: {
+                  cardTemplate: {
+                    include: {
+                      player: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       },
     },
-  },
-},
+  });
 
   if (!user) redirect('/login');
 
@@ -38,10 +43,16 @@ export default async function TeamPage() {
           <h1 className="font-display text-3xl md:text-4xl font-bold text-white mb-2">
             Team <span className="text-[#00e676]">Builder</span>
           </h1>
-          <p className="text-gray-400">Build your 5-player lineup from cards you own</p>
+          <p className="text-gray-400">
+            Build your 5-player lineup from cards you own
+          </p>
         </div>
 
-        <TeamBuilder user={user} ownedCards={user.ownedCards} lineups={user.teamLineups} />
+        <TeamBuilder
+          user={user}
+          ownedCards={user.ownedCards}
+          lineups={user.teamLineups}
+        />
       </div>
     </div>
   );

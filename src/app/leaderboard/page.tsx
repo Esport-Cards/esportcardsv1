@@ -10,19 +10,20 @@ export default async function LeaderboardPage() {
   const topUsers = await prisma.userStats.findMany({
     orderBy: { totalScore: 'desc' },
     take: 50,
-   include: {
-  user: {
     include: {
-      teamLineups: {
-        take: 1,
-        orderBy: { totalScore: 'desc' },
+      user: {
         include: {
-          slots: true,
+          teamLineups: {
+            take: 1,
+            orderBy: { totalScore: 'desc' },
+            include: {
+              slots: true,
+            },
+          },
         },
       },
     },
-  },
-},
+  });
 
   const currentUserStats = session?.user?.email
     ? await prisma.user.findUnique({
@@ -44,45 +45,54 @@ export default async function LeaderboardPage() {
         {/* Podium for top 3 */}
         {topUsers.length >= 3 && (
           <div className="flex justify-center items-end gap-4 mb-12 pb-8">
-            {/* 2nd place */}
             <div className="text-center w-36">
               <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-[#4a9eff]/20 border-2 border-[#4a9eff] flex items-center justify-center text-xl font-bold text-[#4a9eff]">
                 {topUsers[1].user.name?.charAt(0).toUpperCase()}
               </div>
               <div className="bg-[#4a9eff]/10 border border-[#4a9eff]/30 rounded-t-2xl p-4 pt-6">
-                <div className="font-display text-[#4a9eff] font-bold">#{2}</div>
-                <div className="text-white font-bold text-sm mt-1 truncate">{topUsers[1].user.name}</div>
-                <div className="text-xs text-gray-400 mt-1">{topUsers[1].totalScore} pts</div>
+                <div className="font-display text-[#4a9eff] font-bold">#2</div>
+                <div className="text-white font-bold text-sm mt-1 truncate">
+                  {topUsers[1].user.name}
+                </div>
+                <div className="text-xs text-gray-400 mt-1">
+                  {topUsers[1].totalScore} pts
+                </div>
               </div>
             </div>
 
-            {/* 1st place */}
             <div className="text-center w-40 -mb-4">
               <div className="w-20 h-20 mx-auto mb-2 rounded-full bg-[#ffaa00]/20 border-2 border-[#ffaa00] flex items-center justify-center text-2xl font-bold text-[#ffaa00]">
                 {topUsers[0].user.name?.charAt(0).toUpperCase()}
               </div>
               <div className="bg-[#ffaa00]/10 border border-[#ffaa00]/30 rounded-t-2xl p-4 pt-6">
-                <div className="font-display text-[#ffaa00] font-bold text-lg">#{1}</div>
-                <div className="text-white font-bold mt-1 truncate">{topUsers[0].user.name}</div>
-                <div className="text-xs text-gray-400 mt-1">{topUsers[0].totalScore} pts</div>
+                <div className="font-display text-[#ffaa00] font-bold text-lg">#1</div>
+                <div className="text-white font-bold mt-1 truncate">
+                  {topUsers[0].user.name}
+                </div>
+                <div className="text-xs text-gray-400 mt-1">
+                  {topUsers[0].totalScore} pts
+                </div>
               </div>
             </div>
 
-            {/* 3rd place */}
             <div className="text-center w-36">
               <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-[#b44aff]/20 border-2 border-[#b44aff] flex items-center justify-center text-xl font-bold text-[#b44aff]">
                 {topUsers[2].user.name?.charAt(0).toUpperCase()}
               </div>
               <div className="bg-[#b44aff]/10 border border-[#b44aff]/30 rounded-t-2xl p-4 pt-6">
-                <div className="font-display text-[#b44aff] font-bold">#{3}</div>
-                <div className="text-white font-bold text-sm mt-1 truncate">{topUsers[2].user.name}</div>
-                <div className="text-xs text-gray-400 mt-1">{topUsers[2].totalScore} pts</div>
+                <div className="font-display text-[#b44aff] font-bold">#3</div>
+                <div className="text-white font-bold text-sm mt-1 truncate">
+                  {topUsers[2].user.name}
+                </div>
+                <div className="text-xs text-gray-400 mt-1">
+                  {topUsers[2].totalScore} pts
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Full leaderboard table */}
+        {/* Table */}
         <div className="panel overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -95,9 +105,12 @@ export default async function LeaderboardPage() {
                   <th className="text-right text-xs text-gray-400 font-medium p-4">Score</th>
                 </tr>
               </thead>
+
               <tbody>
                 {topUsers.map((stat, i) => {
-                  const isCurrentUser = currentUserStats && stat.user.id === currentUserStats.id;
+                  const isCurrentUser =
+                    currentUserStats && stat.user.id === currentUserStats.id;
+
                   return (
                     <tr
                       key={stat.id}
@@ -105,32 +118,20 @@ export default async function LeaderboardPage() {
                         isCurrentUser ? 'bg-[#00e676]/5' : 'hover:bg-white/5'
                       } transition-colors`}
                     >
-                      <td className="p-4">
-                        <span className={`font-display font-bold text-sm ${
-                          i === 0 ? 'text-[#ffaa00]' :
-                          i === 1 ? 'text-[#4a9eff]' :
-                          i === 2 ? 'text-[#b44aff]' :
-                          'text-gray-400'
-                        }`}>
-                          #{i + 1}
-                        </span>
+                      <td className="p-4 font-bold text-sm text-gray-400">
+                        #{i + 1}
                       </td>
-                      <td className="p-4">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                            isCurrentUser ? 'bg-[#00e676]/20 text-[#00e676]' : 'bg-[#0d4f3c] text-gray-300'
-                          }`}>
-                            {stat.user.name?.charAt(0).toUpperCase()}
-                          </div>
-                          <span className={`font-medium text-sm ${isCurrentUser ? 'text-[#00e676]' : 'text-white'}`}>
-                            {stat.user.name}
-                            {isCurrentUser && ' (You)'}
-                          </span>
-                        </div>
+                      <td className="p-4 text-white text-sm">
+                        {stat.user.name}
+                        {isCurrentUser && ' (You)'}
                       </td>
-                      <td className="p-4 text-sm text-gray-400">{stat.totalCards}</td>
-                      <td className="p-4 text-sm text-gray-400">{stat.packsOpened}</td>
-                      <td className="p-4 text-right font-mono text-sm text-[#ffaa00] font-bold">
+                      <td className="p-4 text-sm text-gray-400">
+                        {stat.totalCards}
+                      </td>
+                      <td className="p-4 text-sm text-gray-400">
+                        {stat.packsOpened}
+                      </td>
+                      <td className="p-4 text-right font-bold text-[#ffaa00]">
                         {stat.totalScore}
                       </td>
                     </tr>
@@ -141,7 +142,7 @@ export default async function LeaderboardPage() {
 
             {topUsers.length === 0 && (
               <div className="text-center py-12 text-gray-500">
-                No players on the leaderboard yet. Start building teams to compete!
+                No players on the leaderboard yet.
               </div>
             )}
           </div>
